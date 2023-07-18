@@ -58,9 +58,9 @@ public class Character {
 
             if(this.health>1000){
                 this.health=1000;
-            } else if (this.health<0) {
-                setHealth(0);
-                getAlive(false);
+            } else if (this.health<=0) {
+                this.health=0;
+                setAlive(false);
             }
         }
     }
@@ -77,21 +77,23 @@ public class Character {
         return alive;
     }
 
-    public void getAlive(boolean alive) {
+    public void setAlive(boolean alive) {
         this.alive = alive;
     }
 
     public void DealDamage(int damage, Character targetCharacter, double distance){
-        if(distance<=this.characterClass.range){
-            if(this!=targetCharacter){
-                if(this.level >= targetCharacter.level+5){
-                    damage = (int) Math.floor(damage*1.5);
-                }
-                else if(this.level <= targetCharacter.level-5){
-                    damage = (int) Math.floor(damage*0.5);
-                }
+        if(!IsAlly(targetCharacter)){
+            if(distance<=this.characterClass.range){
+                if(this!=targetCharacter){
+                    if(this.level >= targetCharacter.level+5){
+                        damage = (int) Math.floor(damage*1.5);
+                    }
+                    else if(this.level <= targetCharacter.level-5){
+                        damage = (int) Math.floor(damage*0.5);
+                    }
 
-                targetCharacter.GetDamage(damage);
+                    targetCharacter.GetDamage(damage);
+                }
             }
         }
     }
@@ -101,12 +103,12 @@ public class Character {
     }
 
     public void PerformHealing(int amountOfHealing, Character myCharacter2) {
-        if(this==myCharacter2){
-            this.receiveHealing(amountOfHealing);
+        if((this==myCharacter2) || this.IsAlly(myCharacter2)){
+            myCharacter2.receiveHealing(amountOfHealing);
         }
     }
 
-    private void receiveHealing(int amountOfHealing) {
+    protected void receiveHealing(int amountOfHealing) {
         setHealth(this.health+amountOfHealing);
     }
 
@@ -122,11 +124,35 @@ public class Character {
         return myFactionList;
     }
 
-    public void AddFactionToMyList(String newFaction) {
-        if(!factionList.FactionList.contains(newFaction)){
-            factionList.addFactionToList(newFaction);
-        }
+    public void JoinFaction(String newFaction) {
 
-        myFactionList.add(newFaction);
+        if(!this.myFactionList.contains(newFaction)){
+            myFactionList.add(newFaction);
+            if(!factionList.FactionList.contains(newFaction)){
+                factionList.addFactionToList(newFaction);
+            }
+        }
     }
+
+    public void LeaveFaction(String theFaction) {
+        if(myFactionList.contains(theFaction)){
+            myFactionList.remove(theFaction);
+        }
+    }
+
+    public boolean IsAlly(Character targetCharacter){
+        boolean charIsAlly=false;
+
+        for(String eachFaction : myFactionList){
+            if(targetCharacter.getMyFactionList().contains(eachFaction)){
+                charIsAlly=true;
+                break;
+            }
+        }
+        return charIsAlly;
+    }
+
+
+
+
 }

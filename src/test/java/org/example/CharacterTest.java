@@ -228,11 +228,80 @@ class CharacterTest {
     }
 
     @Test
+    public void characters_with_no_faction_are_not_allies(){
+        assertFalse(myCharacter1.IsAlly(myCharacter2));
+    }
+
+    @Test
     public void Character_can_join_one_or_more_faction(){
-        myCharacter1.AddFactionToMyList("Los Hutt");
+        myCharacter1.JoinFaction("Los Hutt");
 
         assertTrue(myCharacter1.getMyFactionList().size()>0);
     }
+
+    @Test
+    public void Character_can_leave_one_or_more_faction(){
+        String theFaction="Los Hutt";
+//            System.out.println(myCharacter1.getMyFactionList());
+//        myCharacter1.JoinFaction("Los puf");
+        myCharacter1.JoinFaction(theFaction);
+//            System.out.println(myCharacter1.getMyFactionList());
+        myCharacter1.LeaveFaction(theFaction);
+//            System.out.println(myCharacter1.getMyFactionList());
+
+        assertFalse(myCharacter1.getMyFactionList().contains(theFaction));
+    }
+
+    @Test
+    public void Character_belonging_same_faction_are_allies(){
+        myCharacter1.JoinFaction("The Hutts");
+        myCharacter2.JoinFaction("The Hutts");
+
+//        System.out.println(myCharacter1.getMyFactionList());
+//        System.out.println(myCharacter2.getMyFactionList());
+
+        assertTrue(myCharacter1.IsAlly(myCharacter2));
+    }
+
+    @Test
+    public void characters_donnot_deal_damage_to_allies(){
+        myCharacter1.JoinFaction("The Hutts");
+        myCharacter2.JoinFaction("The Hutts");
+
+        int oldHealth2=myCharacter2.getHealth();
+        myCharacter1.DealDamage(50, myCharacter2, 2);
+
+        assertEquals(myCharacter2.getHealth(), oldHealth2);
+    }
+
+    @Test
+    public void Allies_can_heal_each_other(){
+        int amountOfHealing=30;
+
+        myCharacter1.JoinFaction("The Hutts");
+        myCharacter2.JoinFaction("The Hutts");
+
+        myCharacter2.setHealth(100);
+        int oldHealthBefore=myCharacter2.getHealth();
+        myCharacter2.setHealth(oldHealthBefore+amountOfHealing);
+        int HealthIfHealed=myCharacter2.getHealth();
+
+        myCharacter2.setHealth(100);
+        myCharacter1.PerformHealing(amountOfHealing, myCharacter2);
+
+        assertEquals(HealthIfHealed ,myCharacter2.getHealth());
+    }
+
+    /////////////////////// ITERATION 5 //////////////////////////////////
+
+    /*
+    Characters can damage non-character things (props).
+        Anything that has Health may be a target
+        These things cannot be Healed and they do not Deal Damage
+        These things do not belong to Factions; they are neutral
+        When reduced to 0 Health, things are Destroyed
+        As an example, you may create a Tree with 2000 Health
+     */
 
 
 
